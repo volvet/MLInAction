@@ -9,9 +9,9 @@ def datingType2Number(datingType):
 	if datingType == 'didntLike':
 		return 1
 	if datingType == 'smallDoses':
-		return 2
-	if datingType == 'largeDoses':
 		return 3
+	if datingType == 'largeDoses':
+		return 5
 	print "Unknonw", datingType
 
 def createDataSet():
@@ -51,6 +51,16 @@ def file2matrix(filename):
 		index += 1
 	return mat, labels
 
+def autoNorm(dataSet):
+	minVals = dataSet.min(0)
+	maxVals = dataSet.max(0)
+	ranges = maxVals - minVals
+	normDataSet = zeros(shape(dataSet))
+	m = dataSet.shape[0]
+	normDataSet = dataSet - tile(minVals, (m, 1))
+	normDataSet = normDataSet/tile(ranges, (m, 1))
+	return normDataSet, ranges, minVals
+
 
 if __name__ == '__main__':
     print "knn test"
@@ -58,22 +68,29 @@ if __name__ == '__main__':
     print "group: \n", group
     print "labels: \n", labels
     print classify0([0, 0], group, labels, 3)
-    print "dating test"
-    mat, labels = file2matrix('datingTestSet.txt')
-    print mat
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.scatter(mat[:,1], mat[:,2], 15.0*array(labels), 15.0*array(labels))
-    ax.set_ylabel("Icecream")
-    ax.set_xlabel("Game")
-    plt.show()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.scatter(mat[:,0], mat[:,1], 15.0*array(labels), 15.0*array(labels))
-    ax.set_ylabel('Game')
-    ax.set_xlabel('flight')
-    plt.show()
+    print "dating test"
+    hoRatio = 0.50
+    mat, labels = file2matrix('datingTestSet.txt')
+
+    normMat,  ranges, minVals = autoNorm(mat)
+    print "ranges = ", ranges
+    print "minVals = ", minVals
+    #print mat.min(0)
+    #print mat
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111)
+    #ax.scatter(mat[:,1], mat[:,2], 15.0*array(labels), 15.0*array(labels))
+    #ax.set_ylabel("Icecream")
+    #ax.set_xlabel("Game")
+    #plt.show()
+
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111)
+    #ax.scatter(mat[:,0], mat[:,1], 15.0*array(labels), 15.0*array(labels))
+    #ax.set_ylabel('Game')
+    #ax.set_xlabel('flight')
+    #plt.show()
 
 
 
