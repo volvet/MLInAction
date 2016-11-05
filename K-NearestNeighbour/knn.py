@@ -61,6 +61,19 @@ def autoNorm(dataSet):
 	normDataSet = normDataSet/tile(ranges, (m, 1))
 	return normDataSet, ranges, minVals
 
+def datingClassTest():
+	hoRatio = 0.50
+	datingDataMatrix, datingLabels = file2matrix('datingTestSet.txt')
+	normMat, ranges, minVals = autoNorm(datingDataMatrix)
+	m = normMat.shape[0]
+	numTestVecs = int(m*hoRatio)
+	errorCount = 0
+	for i in range(numTestVecs):
+		classifierResult = classify0(normMat[i,:], normMat[numTestVecs:m,:], datingLabels[numTestVecs:m], 3)
+		if (classifierResult != datingLabels[i]):
+			errorCount += 1
+	print "The total error rate is: %f" % (errorCount/float(numTestVecs))
+
 
 if __name__ == '__main__':
     print "knn test"
@@ -70,12 +83,14 @@ if __name__ == '__main__':
     print classify0([0, 0], group, labels, 3)
 
     print "dating test"
-    hoRatio = 0.50
-    mat, labels = file2matrix('datingTestSet.txt')
+    datingClassTest()
 
-    normMat,  ranges, minVals = autoNorm(mat)
-    print "ranges = ", ranges
-    print "minVals = ", minVals
+
+    #hoRatio = 0.50
+    #mat, labels = file2matrix('datingTestSet.txt')
+    #normMat,  ranges, minVals = autoNorm(mat)
+    #print "ranges = ", ranges
+    #print "minVals = ", minVals
     #print mat.min(0)
     #print mat
     #fig = plt.figure()
@@ -84,7 +99,6 @@ if __name__ == '__main__':
     #ax.set_ylabel("Icecream")
     #ax.set_xlabel("Game")
     #plt.show()
-
     #fig = plt.figure()
     #ax = fig.add_subplot(111)
     #ax.scatter(mat[:,0], mat[:,1], 15.0*array(labels), 15.0*array(labels))
