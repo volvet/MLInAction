@@ -1,5 +1,6 @@
 
 from math import log
+import operator
 
 def calcShannonEnt(dataSet):
     numEntries = len(dataSet)
@@ -17,7 +18,7 @@ def calcShannonEnt(dataSet):
 
 
 def createDataSet():
-    dataSet = [ [1, 1, 'maybe'],
+    dataSet = [ [1, 1, 'yes'],
                 [1, 1, 'yes'],
                 [1, 0, 'no'],
                 [0, 1, 'no'],
@@ -55,6 +56,34 @@ def chooseBestFeatureToSplit(dataSet):
             bestFeature = i
     return bestFeature
 
+def majorityCnt(classList):
+    classCount = {}
+    for vote in classList:
+        if vote not in classCount: classCount[vote] = 0
+        classCount[vote] += 1
+    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
+    return sortedClassCount[0][0]
+
+def createTree(dataSet, labels):
+    classList = [example[-1] for example in dataSet]
+    if classList.count(classList[0]) == len(classList):
+        print 'all classes are equal: ', classList
+        return classList[0]
+    if len(dataSet[0]) == 1:
+        print 'no more features in dataSet: ', dataSet
+        return majorityCnt(classList)
+    bestFeat = chooseBestFeatureToSplit(dataSet)
+    bestFeatLabel = labels[bestFeat]
+    myTree = {bestFeatLabel: {}}
+    del(labels[bestFeat])
+    featValues = [example[bestFeat] for example in dataSet]
+    uniqueVals = set(featValues)
+    for value in uniqueVals:
+        subLabels = labels[:]
+        myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
+
+    return myTree
+
 
 if __name__ == '__main__':
     dataSet, labels = createDataSet()
@@ -67,3 +96,6 @@ if __name__ == '__main__':
 
     bestFeature = chooseBestFeatureToSplit(dataSet)
     print "best feature is: ", bestFeature
+
+    myTree = createTree(dataSet, labels)
+    print myTree
