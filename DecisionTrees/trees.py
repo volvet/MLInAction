@@ -87,6 +87,18 @@ def createTree(dataSet, labels):
     return myTree
 
 
+def classify(inputTree, featLabels, testVec):
+    firstStr = inputTree.keys[0]
+    secondDict = inputTree[firstStr]
+    featIndex = featLabels.index(firstStr)
+    key = testVec[featIndex]
+    valueOfFeat = secondDict[key]
+    if isinstance(valueOfFeat, dict):
+        classLabel = classify(valueOfFeat, featLables, testVec)
+    else:
+        classLabel = valueOfFeat
+    return classLabel
+
 if __name__ == '__main__':
     dataSet, labels = createDataSet()
     shannonEnt = calcShannonEnt(dataSet)
