@@ -9,6 +9,18 @@ def loadDataSet(fileName):
     return dataMat, labelMat
 
 
+def selectJrand(i,m):
+    j=i
+    while( j==i ):
+        j = int(random.uniform(0, m))
+    return j
+
+def clipAlpha(aj, H, L):
+	if aj > H:
+		aj = H
+	if aj < L:
+		aj = L
+	return aj
 
 
 if __name__ == '__main__':
