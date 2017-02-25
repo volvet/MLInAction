@@ -39,7 +39,7 @@ def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
 		alphaPairsChanged = 0
 		for i in range(m):
 		    fXi = float(multiply(alphas, labelMat).T * (dataMatrix * dataMatrix[i,:].T)) + b
-		    print fXi
+		    #print fXi
 		    Ei = fXi - float(labelMat[i])
 		    if (labelMat[i]*Ei < -toler) and (alphas[i] < C) or ( (labelMat[i]*Ei > toler) and (alphas[i] > 0) ):
 		    	j = selectJrand(i, m)
@@ -54,13 +54,28 @@ def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
 		    		L = max(0, alphas[j] + alphas[i] - C)
 		    		H = min(C, alphas[j] + alphas[i])
 		    	if L == H: print 'L==H'; continue
-
-		iter = maxIter
+		    	eta = 2.0 * dataMatrix[i,:]*dataMatrix[j,:].T - dataMatrix[i,:]*dataMatrix[i,:].T - dataMatrix[j,:]*dataMatrix[j,:].T
+		    	if eta >=0: print 'eta >=0'; continue
+		    	alphas[j] -= labelMat[j] * (Ei - Ej)/eta
+		    	alphas[j] = clipAlpha(alphas[j], H, L)
+		    	if abs(alphas[j] - alphaJOld) < 0.00001: continue #print 'j not moving enough'; continue
+		    	alphas[i] += labelMat[i] * labelMat[j] * (alphaJOld - alphas[j])
+		    	b1 = b - Ei - labelMat[i]*(alphas[i] - alphaIOld)*dataMatrix[i,:]*dataMatrix[i,:].T - labelMat[j]*(alphas[j] - alphaJOld)*dataMatrix[j,:]*dataMatrix[j,:].T
+		    	b2 = b - Ej - labelMat[i]*(alphas[i] - alphaIOld)*dataMatrix[i,:]*dataMatrix[i,:].T - labelMat[j]*(alphas[j] - alphaJOld)*dataMatrix[j,:]*dataMatrix[j,:].T
+		    	if (0<alphas[i]) and (C>alphas[i]): b = b1
+		        elif (0<alphas[j]) and (C>alphas[j]): b = b2
+		        else: b = (b1+b2)/2.0
+		        alphaPairsChanged += 1
+		        print 'iter: %d, i:%d, pairs changed %d' %(iter, i, alphaPairsChanged)
+		if (alphaPairsChanged==0): iter += 1
+		if (alphaPairsChanged!=0): iter = 0
+		print "iteration number: %d"  % iter
+		#print "iteration number: %d"  % iter
+	return b, alphas
 
 
 if __name__ == '__main__':
     dataMat, labelMat = loadDataSet('testSet.txt')
-    #print dataMat
-    #print labelMat
-
-    smoSimple(dataMat, labelMat, 0.6, 0.001, 40)
+    b, alphas = smoSimple(dataMat, labelMat, 0.6, 0.001, 40)
+    print alphas[alphas>0]
+    print b
